@@ -27,10 +27,10 @@ export default async function handler(req, res) {
 
     // Shopify Admin API call
     const response = await fetch(
-      `https://admin.shopify.com/store/my-isense/api/2025-07/variants/32366749155388.json`,
+      `https://${shop}/admin/api/2025-07/variants/${variantId}.json`,
       {
         headers: {
-          'X-Shopify-Access-Token': '9c25f25569a11406d209f88a540fbc4e',
+          'X-Shopify-Access-Token': process.env.SHOPIFY_TOKEN || '9c25f25569a11406d209f88a540fbc4e',
           'Content-Type': 'application/json',
         },
       }
