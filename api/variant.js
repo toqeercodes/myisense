@@ -24,7 +24,7 @@ export default async function handler(req, res) {
     const body = typeof req.body === 'string' ? JSON.parse(req.body || '{}') : req.body || {};
     const variant_ids = body.variant_ids || body.variantIds || [];
     const discounts = body.discounts; // This is the array: [{ code: 'UNLOCK' }]
-
+    console.log("discounts: ", discounts);
     if (!Array.isArray(variant_ids) || variant_ids.length === 0) {
       return res.status(400).json({ error: 'Missing variant_ids array' });
     }
@@ -73,6 +73,7 @@ export default async function handler(req, res) {
     // --- 2. Fetch Discount Code Savings (NEW) ---
     let discountCodeSavings = 0;
     if (discounts && Array.isArray(discounts) && discounts.length > 0) {
+      console.log("if discounts: ", discounts);
       try {
         const discountCode = discounts[0].code; // Get the code "UNLOCK"
         
@@ -84,7 +85,7 @@ export default async function handler(req, res) {
         if (lookupRes.ok) {
           const lookupData = await lookupRes.json();
           const priceRuleId = lookupData.discount_code.price_rule_id;
-
+          console.log("priceRuleId : ", priceRuleId);
           // Step B: Get the Price Rule to find its value
           const priceRuleRes = await fetch(`https://${shop}/admin/api/2025-07/price_rules/${priceRuleId}.json`, {
             headers: adminApiHeaders,
@@ -93,7 +94,7 @@ export default async function handler(req, res) {
           if (priceRuleRes.ok) {
             const priceRuleData = await priceRuleRes.json();
             const priceRule = priceRuleData.price_rule;
-
+            console.log("priceRule : ", priceRule);
             // Only count fixed amounts for this logic
             if (priceRule.value_type === 'fixed_amount') {
               // Value is stored as a negative string, e.g., "-100.00"
