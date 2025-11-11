@@ -1,4 +1,4 @@
-export default async function handler(req, res) {
+ export default async function handler(req, res) {
   // CORS for Shopify Checkout Extensions
   const ALLOWED_ORIGIN = 'https://extensions.shopifycdn.com';
   const corsHeaders = {
@@ -24,7 +24,7 @@ export default async function handler(req, res) {
     const body = typeof req.body === 'string' ? JSON.parse(req.body || '{}') : req.body || {};
     const variant_ids = body.variant_ids || body.variantIds || [];
     const discounts = body.discounts; // This is the array: [{ code: 'UNLOCK' }]
-    console.log("discounts: ", discounts);
+    console.log("here discounts: ", discounts);
     if (!Array.isArray(variant_ids) || variant_ids.length === 0) {
       return res.status(400).json({ error: 'Missing variant_ids array' });
     }
