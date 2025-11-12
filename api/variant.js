@@ -104,9 +104,16 @@ export default async function handler(req, res) {
           headers: adminApiHeaders,
         });
 
+        if (!lookupRes.ok) {
+          console.error("Discount lookup failed:", lookupRes.status, await lookupRes.text());
+          throw new Error('Discount code lookup failed.'); // This will be caught
+        }
+        // --- END OF FIX ---
+
         const lookupData = await lookupRes.json();
-        const ruleId = lookupData?.discount_code?.price_rule_id;
         console.log("lookupData: ", lookupData);
+        const ruleId = lookupData?.discount_code?.price_rule_id;
+        console.log("ruleId: ", ruleId);
         if (ruleId) {
           const ruleRes = await fetch(
             `https://${shop}/admin/api/2025-07/price_rules/${ruleId}.json`,
