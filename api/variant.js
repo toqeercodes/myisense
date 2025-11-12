@@ -15,7 +15,7 @@ export default async function handler(req, res) {
   res.setHeader('Access-Control-Allow-Origin', ALLOWED_ORIGIN);
   res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
-
+  
   try {
     if (req.method !== 'POST') {
       return res.status(405).json({ error: 'Method not allowed' });
@@ -31,7 +31,10 @@ export default async function handler(req, res) {
 
     const shop = 'my-isense.myshopify.com'; // replace with your shop
     const token = process.env.SHOPIFY_TOKEN || '9c25f25569a11406d209f88a540fbc4e';
-
+    const adminApiHeaders = {
+      'X-Shopify-Access-Token': token,
+      'Content-Type': 'application/json',
+    };
     const parsePrice = (v) => {
       if (v == null) return 0;
       if (typeof v === 'number') return v;
