@@ -24,7 +24,7 @@ export default async function handler(req, res) {
     const body = typeof req.body === 'string' ? JSON.parse(req.body || '{}') : req.body || {};
     const variant_ids = body.variant_ids || body.variantIds || [];
     const discounts = body.discounts; // optional array, e.g. [{ code: "SUMMER10" }]
-
+    console.log("discounts: ", discounts);
     if (!Array.isArray(variant_ids) || variant_ids.length === 0) {
       return res.status(400).json({ error: 'Missing variant_ids array' });
     }
@@ -93,7 +93,9 @@ export default async function handler(req, res) {
     // 3️⃣ Handle discount code lookup
     let discountInfo = null;
     if (discounts && discounts.length > 0 && discounts[0].code) {
+      console.log("here discounts: ", discounts[0].code);
       const discountCode = discounts[0].code.trim();
+      console.log("here discountCode: ", discountCode);
       try {
         const lookupRes = await fetch(
           `https://${shop}/admin/api/2025-07/discount_codes/lookup.json?code=${encodeURIComponent(discountCode)}`,
@@ -107,7 +109,7 @@ export default async function handler(req, res) {
 
         const lookupData = await lookupRes.json();
         const ruleId = lookupData?.discount_code?.price_rule_id;
-
+        console.log("ruleId: ", ruleId);
         if (ruleId) {
           const ruleRes = await fetch(
             `https://${shop}/admin/api/2025-07/price_rules/${ruleId}.json`,
