@@ -109,7 +109,7 @@ export default async function handler(req, res) {
 
         const lookupData = await lookupRes.json();
         const ruleId = lookupData?.discount_code?.price_rule_id;
-        console.log("ruleId: ", ruleId);
+        console.log("lookupData: ", lookupData);
         if (ruleId) {
           const ruleRes = await fetch(
             `https://${shop}/admin/api/2025-07/price_rules/${ruleId}.json`,
