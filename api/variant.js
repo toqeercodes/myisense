@@ -156,9 +156,7 @@ export default async function handler(req, res) {
       totalSavings,
       discountInfo,
       discountAmountTotal,
-      discountCode,
-      ruleId,
-      ruleData
+      discounts[0].code
     });
   } catch (err) {
     console.error('Server error', err);
