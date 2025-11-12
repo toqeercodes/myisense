@@ -97,15 +97,9 @@ export default async function handler(req, res) {
       const discountCode = discounts[0].code.trim();
       console.log("here discountCode: ", discountCode);
       try {
-        const lookupRes = await fetch(
-          `https://${shop}/admin/api/2025-07/discount_codes/lookup.json?code=${encodeURIComponent(discountCode)}`,
-          {
-            headers: {
-              'X-Shopify-Access-Token': token,
-              'Content-Type': 'application/json',
-            },
-          }
-        );
+        const lookupRes = await fetch(`https://${shop}/admin/api/2025-07/discount_codes/lookup.json?code=${discountCode}`, {
+          headers: adminApiHeaders,
+        });
 
         const lookupData = await lookupRes.json();
         const ruleId = lookupData?.discount_code?.price_rule_id;
