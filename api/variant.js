@@ -155,8 +155,7 @@ export default async function handler(req, res) {
       variants: results,
       totalSavings,
       discountInfo,
-      discountAmountTotal,
-      discounts[0].code
+      discountAmountTotal
     });
   } catch (err) {
     console.error('Server error', err);
