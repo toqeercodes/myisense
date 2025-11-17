@@ -23,8 +23,6 @@ export default async function handler(req, res) {
 
     const body = typeof req.body === 'string' ? JSON.parse(req.body || '{}') : req.body || {};
     const variant_ids = body.variant_ids || body.variantIds || [];
-    const discounts = body.discounts; // optional array, e.g. [{ code: "SUMMER10" }]
-    console.log("discounts: ", discounts);
     if (!Array.isArray(variant_ids) || variant_ids.length === 0) {
       return res.status(400).json({ error: 'Missing variant_ids array' });
     }
