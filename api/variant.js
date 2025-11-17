@@ -44,7 +44,7 @@ export default async function handler(req, res) {
     };
 
     // 1️⃣ Fetch all variants concurrently
-    const fetches = variant_ids.map((id) =>
+    const fetches = variant_ids.map(({ id, quantity }) =>
       fetch(`https://${shop}/admin/api/2025-07/variants/${id}.json`, {
         headers: {
           'X-Shopify-Access-Token': token,
@@ -73,12 +73,17 @@ export default async function handler(req, res) {
           const priceN = parsePrice(priceRaw);
           const savings = Math.max(0, compareN - priceN);
 
+          // multiply by quantity
+          const totalComparePrice = compareN * quantity;
+          const totalPrice = priceN * quantity;
+          const totalSavings = Math.max(0, totalComparePrice - totalPrice);
+
           return {
             id: variant.id ?? id,
             price: priceN,
             compare_at_price: compareN,
             currency,
-            savings,
+            savings: totalSavings,
             rawVariant: variant,
           };
         })
@@ -93,73 +98,10 @@ export default async function handler(req, res) {
       return acc;
     }, 0);
 
-    // 3️⃣ Handle discount code lookup
-    let discountInfo = null;
-    if (discounts && discounts.length > 0 && discounts[0].code) {
-      console.log("here discounts: ", discounts[0].code);
-      const discountCode = discounts[0].code.trim();
-      console.log("here discountCode: ", discountCode);
-      try {
-        const lookupRes = await fetch(`https://${shop}/admin/api/2025-07/discount_codes/lookup.json?code=${discountCode}`, {
-          headers: adminApiHeaders,
-        });
-
-        if (!lookupRes.ok) {
-          console.error("Discount lookup failed:", lookupRes.status, await lookupRes.text());
-          throw new Error('Discount code lookup failed.'); // This will be caught
-        }
-        // --- END OF FIX ---
-
-        const lookupData = await lookupRes.json();
-        console.log("lookupData: ", lookupData);
-        const ruleId = lookupData?.discount_code?.price_rule_id;
-        console.log("ruleId: ", ruleId);
-        if (ruleId) {
-          const ruleRes = await fetch(
-            `https://${shop}/admin/api/2025-07/price_rules/${ruleId}.json`,
-            {
-              headers: {
-                'X-Shopify-Access-Token': token,
-                'Content-Type': 'application/json',
-              },
-            }
-          );
-          const ruleData = await ruleRes.json();
-          const rule = ruleData.price_rule;
-
-          // interpret discount rule
-          discountInfo = {
-            code: discountCode,
-            value_type: rule.value_type, // 'percentage' or 'fixed_amount'
-            value: parseFloat(rule.value), // usually negative
-            target_type: rule.target_type,
-          };
-        }
-      } catch (err) {
-        console.error('Failed to fetch discount code info', err);
-        discountInfo = { code: discounts[0].code, error: 'Lookup failed' };
-      }
-    }
-
-    // 4️⃣ Apply discount rule if available
-    let discountAmountTotal = 0;
-    if (discountInfo && discountInfo.value && discountInfo.value_type) {
-      const absValue = Math.abs(discountInfo.value);
-      if (discountInfo.value_type === 'percentage') {
-        // percentage off each variant
-        discountAmountTotal = results.reduce((acc, r) => acc + r.price * (absValue / 100), 0);
-      } else if (discountInfo.value_type === 'fixed_amount') {
-        // fixed amount off per item
-        discountAmountTotal = absValue * results.length;
-      }
-    }
-
     // 5️⃣ Final response
     return res.status(200).json({
       variants: results,
-      totalSavings,
-      discountInfo,
-      discountAmountTotal
+      totalSavings
     });
   } catch (err) {
     console.error('Server error', err);
