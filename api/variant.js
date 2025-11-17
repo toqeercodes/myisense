@@ -83,7 +83,7 @@ export default async function handler(req, res) {
           return {
             id: variant.id ?? variant_id,
             price: priceN,
-            compare_at_price: compareN,
+            compare_at_price: totalComparePrice,
             currency,
             savings: totalSavings, // This is the savings for this line item
             rawVariant: variant,
